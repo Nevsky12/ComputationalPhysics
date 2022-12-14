@@ -82,13 +82,13 @@ template<unsigned S>
                         stageVal = y + h * Types::BasicTypes::vec{(A.row(i) * stageDerC).reshaped()};
                         stageDerNext.row(i) = rightPart(t + h * c(i), stageVal);
                     }
-                    Types::BasicTypes::vec const dY = Types::BasicTypes::vec{stageDerNext.reshaped()} - stageDer;
+                    Types::BasicTypes::vec const &dY = Types::BasicTypes::vec{stageDerNext.reshaped()} - stageDer;
                     return dY;
                 };
 
-                Types::BasicTypes::vec const rhs = calcF(initState, t, y);
-                Types::BasicTypes::vec const d = LU.solve(rhs);
-                Types::BasicTypes::vec const res = initState + d;
+                Types::BasicTypes::vec const &rhs = calcF(initState, t, y);
+                Types::BasicTypes::vec const &d = LU.solve(rhs);
+                Types::BasicTypes::vec const &res = initState + d;
                 return res;
             };
 

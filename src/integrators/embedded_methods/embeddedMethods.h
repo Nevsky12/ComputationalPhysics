@@ -6,7 +6,6 @@ namespace ComputationalPhysics::Integrators::Embedded
 {
 
 using Val = ComputationalPhysics::Types::BasicTypes::vec;
-using Mat = ComputationalPhysics::Types::BasicTypes::mat;
 using State = ComputationalPhysics::Types::CoreTypes::State;
 using Arg   = ComputationalPhysics::Types::CoreTypes::  arg;
 using Res      = ComputationalPhysics::Types::BasicTypes::vecSeriesSTL;
@@ -23,8 +22,8 @@ template<unsigned S>
                                      , Arg   const broad
                                      , Step  const tolerance
                                      , EmbeddedTable<S> const &eT
-                                     , std::function<Val(Arg const, Val const&)> const &rightPart
-                                     , std::function<Arg(Arg const, Arg const )> const &errFunc
+                                     , std::function<Val(Arg const,  Val const&)> const &rightPart
+                                     , std::function<Arg(Val const&, Val const&)> const &errFunc
                                      ) noexcept
 {
     ResState result;
@@ -35,66 +34,51 @@ template<unsigned S>
     auto const c  = eT.c;
     auto const bp = eT.bp;
     result.emplace_back(State{cInit.state, cInit.t});
-    Types::BasicTypes::scalar tn = cInit.t;
     Types::BasicTypes::scalar hn = h;
     unsigned const M = cInit.state.size();
 
     auto const &calcRhs = [&]( Types::BasicTypes::   vec const &stageDer
                                                                  , Types::BasicTypes::scalar const t
                                                                  , Types::BasicTypes::   vec const &y
-                                                                 ) noexcept -> Types::BasicTypes::vec
+                                                                 ) noexcept -> Types::BasicTypes::mat
     {
         Types::BasicTypes::mat K = Types::BasicTypes::mat::Zero(S, M);
         K.row(0) = stageDer;
-        Types::BasicTypes::vec stageDerNext(M);
         Types::BasicTypes::vec stageVal(M);
         for (unsigned i = 1u; i < S; ++i)
         {
             stageVal = y + hn * Types::BasicTypes::vec{(A.row(i) * K).reshaped()};
             K.row(i) = rightPart(t + hn * c(i), stageVal);
         }
-        Types::BasicTypes::vec const dY = Types::BasicTypes::vec{K.colw.reshaped()} - stageDer;
-        return dY;
-    };
-
-    auto const calcStep = [=](Types::BasicTypes::vec const &err) noexcept
-                                           -> Types::BasicTypes::scalar
-    {
-        return err.squaredNorm();
+        return K;
     };
 
     while (cInit.t < broad)
     {
-        Types::BasicTypes::vec const k0 = rightPart(cInit.t, cInit.state);
-        Types::BasicTypes::vec const rhs = calcRhs(k0, cInit.t, cInit.state);
-        Types::BasicTypes::vec const y     = cInit.state + hn * b  * rhs;
-        Types::BasicTypes::vec const yPerm = cInit.state + hn * bp * rhs;
-        Types::BasicTypes::scalar const err = (y - yPerm).squaredNorm();
-        Types::BasicTypes::scalar const delta = errFunc(err, tolerance);
-
-        if (err < tolerance)
-        {
-            cInit.t += hn;
-            cInit.state += hn * rhs;
-        }
-        if        (delta <= static_cast<Types::BasicTypes::scalar>(0.1))
-        {
-            hn *= static_cast<Types::BasicTypes::scalar>(0.1);
-        } else if (delta >= static_cast<Types::BasicTypes::scalar>(4. ))
-        {
-            hn *= static_cast<Types::BasicTypes::scalar>(4. );
-        } else {
-            hn *= delta;
-        }
-        if (cInit.t + hn > broad)
-            hn = broad - cInit.t;
-
-
-        std::cout << "Y: " << std::endl << cInit.state << std::endl;
-        std::cout << "X: " << tn << " / hn: " << hn << std::endl;
-
-
         cInit.t += hn;
+        Types::BasicTypes::vec const &k0 = rightPart(cInit.t, cInit.state);
+        Types::BasicTypes::mat const &rhs = calcRhs(k0, cInit.t, cInit.state);
+
+        Types::BasicTypes::vec const &y     = cInit.state + hn * rhs.transpose() * b;
+        Types::BasicTypes::vec const &yPerm = cInit.state + hn * rhs.transpose() * bp;
+        Types::BasicTypes::scalar const delta = errFunc(y, yPerm);
+        Types::BasicTypes::scalar const s = std::pow(hn * tolerance / (2 * broad * delta), 0.25);
+
+        if (s >= static_cast<Types::BasicTypes::scalar>(2.))
+        {
+            cInit.state = y;
+            result.emplace_back(State{cInit.state, cInit.t});
+            hn *= static_cast<Types::BasicTypes::scalar>(2.);
+            if(cInit.t + hn > broad)
+                hn = broad - cInit.t;
+        } else if (s >= static_cast<Types::BasicTypes::scalar>(1.))
+        {
+            cInit.state = y;
+            result.emplace_back(State{cInit.state, cInit.t});
+            if(cInit.t + hn > broad)
+                hn = broad - cInit.t;
+        } else if (s < static_cast<Types::BasicTypes::scalar>(1.))
+            hn /= static_cast<Types::BasicTypes::scalar>(2.);
     }
     return result;
 }
