@@ -16,7 +16,7 @@ using Step = decltype(std::declval<Arg>() - std::declval<Arg>());
 template<unsigned S>
 using EmbeddedTable = Types::CoreTypes::EmbeddedTable<S>;
 
-template<unsigned S>
+template<unsigned S, unsigned P>
 [[nodiscard]] ResState embeddedMethod( State const &init
                                      , Step  const h
                                      , Arg   const broad
@@ -62,7 +62,7 @@ template<unsigned S>
         Types::BasicTypes::vec const &y     = cInit.state + hn * rhs.transpose() * b;
         Types::BasicTypes::vec const &yPerm = cInit.state + hn * rhs.transpose() * bp;
         Types::BasicTypes::scalar const delta = errFunc(y, yPerm);
-        Types::BasicTypes::scalar const s = std::pow(hn * tolerance / (2 * broad * delta), 0.25);
+        Types::BasicTypes::scalar const s = std::pow(hn * tolerance / (2 * broad * delta), 1 / (P + 1u));
 
         if (s >= static_cast<Types::BasicTypes::scalar>(2.))
         {
