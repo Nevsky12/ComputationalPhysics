@@ -121,7 +121,7 @@ TEST(INTEGRATORS, DORMAN_PRINCE)
 
     out << "X" << '\t';
     out << "Y" << '\t' << '\n';
-    auto const &result = ComputationalPhysics::Integrators::Embedded::embeddedMethod<7u>( init
+    auto const &result = ComputationalPhysics::Integrators::Embedded::embeddedMethod<7u, 4u>( init
                                                                                         , h0
                                                                                         , broad
                                                                                         , tolerance
