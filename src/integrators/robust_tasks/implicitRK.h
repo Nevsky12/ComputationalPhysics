@@ -64,15 +64,15 @@ template<unsigned S>
             Types::BasicTypes::mat cVal = Val;
             Types::BasicTypes::mat const &JJ = I - h * Utils::Tensors::kronekerProduct(A, J).eval();
             auto const &LU = JJ.fullPivLu();
-            auto const &newtonStep = [&]( Types::BasicTypes::scalar const t
-                                                                            , Types::BasicTypes::   vec const &y
-                                                                            , Types::BasicTypes::   vec const &initState
-                                                                            ) noexcept
+            auto const &newtonStep= [&]( Types::BasicTypes::scalar const t
+                                       , Types::BasicTypes::   vec const &y
+                                       , Types::BasicTypes::   vec const &initState
+                                       ) noexcept
             {
                 auto const &calcF = [&]( Types::BasicTypes::   vec const &stageDer
-                                                                            , Types::BasicTypes::scalar const t
-                                                                            , Types::BasicTypes::   vec const &y
-                                                                           ) noexcept
+                                       , Types::BasicTypes::scalar const t
+                                       , Types::BasicTypes::   vec const &y
+                                       ) noexcept
                 {
                     Types::BasicTypes::mat stageDerNext(S, M);
                     Types::BasicTypes::mat stageDerC = stageDer.reshaped(S, M);
