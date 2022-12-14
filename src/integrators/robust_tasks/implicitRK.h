@@ -56,10 +56,10 @@ template<unsigned S>
     for (unsigned k = 0u; k < N; ++k)
     {
         auto const &solve = [=]( Types::BasicTypes::scalar const t
-                                                                            , Types::BasicTypes::vec const &y
-                                                                            , Types::BasicTypes::mat const &Val
-                                                                            , Types::BasicTypes::mat const &J
-                                                                            ) noexcept
+                               , Types::BasicTypes::vec const &y
+                               , Types::BasicTypes::mat const &Val
+                               , Types::BasicTypes::mat const &J
+                               ) noexcept
         {
             Types::BasicTypes::mat cVal = Val;
             Types::BasicTypes::mat const &JJ = I - h * Utils::Tensors::kronekerProduct(A, J).eval();
