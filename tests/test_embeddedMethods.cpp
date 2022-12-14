@@ -8,7 +8,7 @@ TEST(INTEGRATORS, DORMAN_PRINCE)
     ComputationalPhysics::Types::BasicTypes::scalar const mu = 0.012277471;
     ComputationalPhysics::Types::BasicTypes::scalar const eta = 1. - mu;
     ComputationalPhysics::Types::BasicTypes::scalar const T = 17.0652165601579625588917206249;
-    ComputationalPhysics::Types::BasicTypes::scalar const broad = T;
+    ComputationalPhysics::Types::BasicTypes::scalar const broad = 3 * T;
     ComputationalPhysics::Types::BasicTypes::scalar const tolerance = 1e-12;
     ComputationalPhysics::Types::BasicTypes::scalar const h0 = 1e-4;
     ComputationalPhysics::Types::BasicTypes::scalar const x0 = 0.994;

@@ -38,9 +38,9 @@ template<unsigned S>
     unsigned const M = cInit.state.size();
 
     auto const &calcRhs = [&]( Types::BasicTypes::   vec const &stageDer
-                                                                 , Types::BasicTypes::scalar const t
-                                                                 , Types::BasicTypes::   vec const &y
-                                                                 ) noexcept -> Types::BasicTypes::mat
+                             , Types::BasicTypes::scalar const t
+                             , Types::BasicTypes::   vec const &y
+                             ) noexcept -> Types::BasicTypes::mat
     {
         Types::BasicTypes::mat K = Types::BasicTypes::mat::Zero(S, M);
         K.row(0) = stageDer;
