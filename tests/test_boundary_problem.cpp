@@ -3,6 +3,8 @@
 #include <utils/special_matrix/boundary_matrix.h>
 #include <iostream>
 #include <fstream>
+#include <immintrin.h>
+#pragma GCC target("avx512f")
 
 TEST(SOLVERS, BOUNDARY_PROBLEM)
 {
@@ -63,5 +65,12 @@ TEST(SOLVERS, BOUNDARY_PROBLEM)
         out << stuff << '\n';
         ++i;
     }
+
     out.close();
+}
+
+TEST(TEST, SSE)
+{
+    std::cout << __builtin_cpu_supports("avx512f") << std::endl;
+
 }
